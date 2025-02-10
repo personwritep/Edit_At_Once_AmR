@@ -1,15 +1,15 @@
 // ==UserScript==
-// @name         Edit At Once AmR
-// @namespace    http://tampermonkey.net/
-// @version      2.2
-// @description  Edit Entry_ID Page  レトロタイプスキン専用
-// @author       Ameba Blog User
+// @name        Edit At Once AmR
+// @namespace        http://tampermonkey.net/
+// @version        2.2
+// @description        Edit Entry_ID Page  レトロタイプスキン専用
+// @author        Ameba Blog User
 // @match        https://ameblo.jp/*
 // @match        https://blog.ameba.jp/ucs/entry/srventry*
-// @exclude      https://ameblo.jp/*/image*
+// @exclude        https://ameblo.jp/*/image*
 // @icon        https://www.google.com/s2/favicons?sz=64&domain=ameblo.jp
 // @noframes
-// @grant         none
+// @grant        none
 // @updateURL        https://github.com/personwritep/Edit_At_Once_AmR/raw/main/Edit_At_Once_AmR.user.js
 // @downloadURL        https://github.com/personwritep/Edit_At_Once_AmR/raw/main/Edit_At_Once_AmR.user.js
 // ==/UserScript==
