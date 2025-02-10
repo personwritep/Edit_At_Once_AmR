@@ -7,6 +7,7 @@
 // @match        https://ameblo.jp/*
 // @match        https://blog.ameba.jp/ucs/entry/srventry*
 // @exclude      https://ameblo.jp/*/image*
+// @icon        https://www.google.com/s2/favicons?sz=64&domain=ameblo.jp
 // @noframes
 // @grant         none
 // @updateURL        https://github.com/personwritep/Edit_At_Once_AmR/raw/main/Edit_At_Once_AmR.user.js
