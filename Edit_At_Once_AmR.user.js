@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Edit At Once AmR
 // @namespace        http://tampermonkey.net/
-// @version        2.2
+// @version        2.3
 // @description        Edit Entry_ID Page  レトロタイプスキン専用
 // @author        Ameba Blog User
 // @match        https://ameblo.jp/*
@@ -401,12 +401,8 @@ function main(){
             let title_h;
             let article=document.querySelector('.js-entryWrapper'); //記事全体
             if(article){
-                if(article.querySelector('h1')){
-                    title_h=article.querySelector('h1'); } // 新タイプスキン
-                else if(article.querySelector('h2')){
-                    title_h=article.querySelector('h2'); } // 旧タイプスキン
-                else if(article.querySelector('h3')){
-                    title_h=article.querySelector('h3'); }} // レトロタイプスキン
+                if(article.querySelector('h3.title')){
+                    title_h=article.querySelector('h3.title'); }} // レトロタイプスキン
             return title_h; }
 
     } // blog_page()
@@ -624,4 +620,3 @@ function main(){
     } // editor()
 
 } // main()
-
