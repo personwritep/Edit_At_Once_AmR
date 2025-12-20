@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Edit At Once AmR
 // @namespace        http://tampermonkey.net/
-// @version        2.3
+// @version        2.4
 // @description        Edit Entry_ID Page  レトロタイプスキン専用
 // @author        Ameba Blog User
 // @match        https://ameblo.jp/*
@@ -99,7 +99,8 @@ function main(){
             '<span class="view_page">'+ svg_v +' ブログ</span></div>'+
             '<style>#eao_menu { position: absolute; z-index: 20; font: normal 14px Meiryo; '+
             'padding: 3px 10px 2px; border: 1px solid #dadce0; color: #333; background: #eceff1; '+
-            'box-shadow: 4px 4px 2px -2px rgba(0, 0, 0, 0.48); cursor: default; display: none; } '+
+            'box-shadow: 4px 4px 2px -2px rgba(0, 0, 0, 0.48); white-space: nowrap; '+
+            'cursor: default; display: none; } '+
             '.eaoa_svg { width: 26px; height: 26px; vertical-align: -10px; padding: 2px; '+
             'border: 1px solid #aaa; border-radius: 4px; background: #fff; fill: #000; } '+
             '.file_list, .view_page { margin-left: 12px; } '+
