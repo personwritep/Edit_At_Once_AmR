@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Edit At Once AmR
 // @namespace        http://tampermonkey.net/
-// @version        2.4
+// @version        2.5
 // @description        Edit Entry_ID Page  レトロタイプスキン専用
 // @author        Ameba Blog User
 // @match        https://ameblo.jp/*
@@ -51,7 +51,7 @@ let svg_v=
     '180L138 180L138 62L19 62z" style="fill:#fff;"></path></svg>';
 
 
-
+let zoom_f;
 let title=document.title;
 
 let target=document.querySelector('head');
@@ -131,9 +131,10 @@ function main(){
             title_h.setAttribute("onContextmenu", 'return false;'); // コンテキスト非表示
             title_h.addEventListener('contextmenu', function(e){ // 専用メニュー表示
                 if(ctrl_f==0){
+                    zoom_f=mag_fix();
                     menu.style.display="block";
-                    menu.style.left=e.pageX+"px";
-                    menu.style.top=e.pageY+"px"; }}); }
+                    menu.style.left=e.pageX/zoom_f+"px";
+                    menu.style.top=e.pageY/zoom_f+"px"; }}); }
 
 
         document.addEventListener('keydown', function(event){
@@ -436,9 +437,10 @@ function main(){
 
         function menu_disp(event, target){
             if(ctrl_f==0){
+                zoom_f=mag_fix();
                 menu.style.display="block";
-                menu.style.left=event.pageX+"px";
-                menu.style.top=event.pageY+"px"; }
+                menu.style.left=event.pageX/zoom_f+"px";
+                menu.style.top=event.pageY/zoom_f+"px"; }
             retouch_item(target);
             file_item(target);
             page_item(target); }
@@ -619,5 +621,15 @@ function main(){
             }} // scroll()
 
     } // editor()
+
+
+
+
+    function mag_fix(){
+        let body=document.body;
+        let zoom_f=window.getComputedStyle(body).getPropertyValue('zoom');
+        if(!zoom_f){
+            zoom_f=1; } // 拡大ツールがない環境の場合
+        return zoom_f; }
 
 } // main()
