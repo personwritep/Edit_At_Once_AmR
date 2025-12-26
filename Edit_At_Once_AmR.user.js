@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Edit At Once AmR
 // @namespace        http://tampermonkey.net/
-// @version        2.5
+// @version        2.6
 // @description        Edit Entry_ID Page  レトロタイプスキン専用
 // @author        Ameba Blog User
 // @match        https://ameblo.jp/*
@@ -363,7 +363,8 @@ function main(){
 
         function to_top(){
             let entryBody=document.querySelector('#entryBody');
-            let body_top=-(entryBody.getBoundingClientRect().top);
+            zoom_f=mag_fix();
+            let body_top=-(entryBody.getBoundingClientRect().top)/zoom_f;
             let top;
             if(body_top<-60){
                 top=0; }
