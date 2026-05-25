@@ -1,0 +1,395 @@
+// ==UserScript==
+// @name         Edit At Once AmR
+// @namespace    http://tampermonkey.net/
+// @version      1.8
+// @description  Edit Entry_ID Page レトロタイプスキン専用
+// @author       Ameba Blog User
+// @match        https://ameblo.jp/*
+// @match        https://blog.ameba.jp/ucs/entry/srventry*
+// @exclude      https://ameblo.jp/*/image*
+// @noframes
+// @grant         none
+// ==/UserScript==
+
+
+main();
+
+let target=document.querySelector('head');
+let monitor=new MutationObserver(main);
+monitor.observe(target, { childList: true });
+
+
+function main(){
+    let path=location.pathname;
+    if(path.includes('/entrylist') || path.includes('/archive') ||
+       path.includes('/theme') || path.includes('/amemberentrylist')){ // 記事一覧
+        menu_set();
+        blog_archive(); }
+    else if(path.includes('/srventrylist')){ // 記事の編集・削除
+        srventrylist(); }
+    else if(path.includes('/srventryup') || path.includes('/srventryin')){ // 編集画面
+        editor(); }
+    else if(document.querySelector('.js-entryWrapper')){ // ブログ画面・アメンバーブログ画面
+        menu_set();
+        blog_page(); }
+
+
+
+    function menu_set(env){
+
+        let svg_e=
+            '<svg class="eaoa_svg" viewBox="-1 -2 26 26">'+
+            '<path d="m19.6 9.2-4.9-4.9c-.2-.2-.2-.5 0-.7l1.8-1.8c.4-.4 1-.4 1.4 0L22.1 6c.4.4.4 '+
+            '1 0 1.4l-1.8 1.8c-.2.2-.5.2-.7 0zm-7-3.5-8.1 8.1L3 19.7c-.2.7.5 1.4 1.2 1.2l5.8-1.4 '+
+            '8.1-8.1c.2-.2.2-.5 0-.7l-4.9-4.9c-.1-.3-.5-.3-.6-.1z"></path></svg>';
+
+        let svg_l=
+            '<svg class="eaoa_svg" viewBox="0 0 300 300">'+
+            '<path d="M85 41C79 42 73 46 71 52C69 56 70 61 74 62C79 63 86 62 91 62L126 '+
+            '62C133 62 141 61 147 64C163 73 149 97 170 103C176 104 182 103 188 103L223 '+
+            '103C231 103 240 101 246 107C253 114 252 124 252 133L252 189C252 195 252 '+
+            '202 252 208C252 211 253 214 257 214C264 213 273 204 274 197C275 189 274 '+
+            '179 274 171L274 119C274 109 276 97 269 88C261 79 251 80 241 80L202 80C196 '+
+            '80 189 81 183 80C177 78 178 70 178 65C178 57 175 49 169 44C162 39 153 40 145 '+
+            '40L106 40C99 40 92 39 85 41M44 81C28 85 28 101 28 114L28 214L28 237C28 243 '+
+            '28 248 31 253C42 267 62 263 77 263L173 263L200 263C206 263 213 263 219 '+
+            '261C233 256 234 245 234 232L234 159C234 149 236 135 229 127C221 119 211 '+
+            '119 201 119L163 119C157 119 150 120 144 119C136 116 138 106 138 100C137 94 '+
+            '135 89 130 85C122 79 114 80 105 80L66 80C59 80 51 79 44 81z">'+
+            '</path><path d="M59 104C48 107 51 123 51 132L51 209L51 228C51 231 51 234 '+
+            '53 237C55 239 60 239 63 239L89 239L171 239L195 239C199 239 203 240 207 '+
+            '238C214 235 212 224 212 218L212 165C212 159 214 150 210 145C205 141 193 '+
+            '143 187 143L149 143C143 143 135 144 129 143C127 142 125 141 123 140C111 '+
+            '130 121 117 113 107C110 103 105 103 100 103L73 103C69 103 63 102 59 104z" '+
+            'style="fill:#fff"></path></svg>';
+
+        let svg_v=
+            '<svg class="eaoa_svg" viewBox="-15 -15 230 230">'+
+            '<path d="M8 17C4 19 4 23 4 27C4 36 4 44 4 53L4 148L4 171C4 174 3 179 6 182C9 '+
+            '185 14 184 18 184L49 184L148 184L177 184C181 184 187 185 191 183C195 181 '+
+            '196 177 196 173C196 164 196 156 196 147L196 52L196 29C196 26 197 21 194 '+
+            '18C191 15 186 16 182 16L151 16L50 16L22 16C18 16 12 15 8 17z" ></path>'+
+            '<path d="M165 62C150 65 155 89 170 85C185 82 180 58 165 62M19 62L19 '+
+            '180L138 180L138 62L19 62z" style="fill:#fff;"></path></svg>';
+
+        let menu=
+            '<div id="eao_menu">'+
+            '<span id="retouch">'+ svg_e +' 再編集</span>'+
+            '<span id="file_list">'+ svg_l +' リスト表示</span>'+
+            '<span id="view_page">'+ svg_v +' ブログ</span></div>'+
+            '<style>#eao_menu { position: absolute; z-index: 20; font: normal 14px Meiryo; '+
+            'padding: 3px 10px 2px; border: 1px solid #dadce0; color: #333; background: #eceff1; '+
+            'box-shadow: 4px 4px 2px -2px rgba(0, 0, 0, 0.48); cursor: default; display: none; } '+
+            '.eaoa_svg { width: 26px; height: 26px; vertical-align: -10px; padding: 2px; '+
+            'border: 1px solid #aaa; border-radius: 4px; background: #fff; fill: #000; } '+
+            '#file_list, #view_page { margin-left: 12px; } '+
+            '#eao_menu span:hover .eaoa_svg { fill: red; } '+
+            '#eao_menu.c_active span .eaoa_svg { fill: #90a4ae; } '+
+            '#eao_menu.c_active span:hover .eaoa_svg { fill: #0069ff; }</style>';
+
+        if(!document.querySelector('#eao_menu')){
+            document.body.insertAdjacentHTML('beforeend', menu); }}
+
+
+
+    function blog_page(){
+        let menu=document.querySelector('#eao_menu');
+        let retouch=document.querySelector('#retouch');
+        let file_list=document.querySelector('#file_list');
+        let view_page=document.querySelector('#view_page');
+        if(view_page){
+            view_page.style.display='none'; }
+
+        let article=document.querySelector('.js-entryWrapper'); //記事全体
+        let title_h; // タイトル部
+        let title; // 記事タイトル
+        let ctrl_f=0; // Ctrlキー 押下フラグ
+        let unfit=0; // ツールの不適合フラグ
+
+        if(article){
+            if(article.querySelector('h1')){
+                unfit=1;
+                title_h=article.querySelector('h1');
+                title=title_h.querySelector('a'); }
+            else if(article.querySelector('h2')){
+                unfit=1;
+                title_h=article.querySelector('h2');
+                title=title_h.querySelector('a'); }
+            else if(article.querySelector('h3')){ // 通常のレトロタイプの記事
+                title_h=article.querySelector('h3');
+                title=title_h.querySelector('a'); }
+
+            if(title){
+                title_h.setAttribute("onContextmenu", 'return false;'); // コンテキスト非表示
+                title.addEventListener('contextmenu', function(e){ // 専用メニュー表示
+
+                    if(unfit==1){
+                        not_fit(); }
+                    else{
+                        if(ctrl_f==0){
+                            menu.style.display="block";
+                            menu.style.left=e.pageX+"px";
+                            menu.style.top=e.pageY+"px"; }}}); }}
+
+
+        document.addEventListener('keydown', function(event){
+            if(event.ctrlKey){
+                ctrl_f=1;
+                if(title_h){
+                    title_h.removeAttribute("onContextmenu", 'return false;'); }} // コンテキスト表示
+            if(event.shiftKey){
+                menu.classList.add('c_active'); }});
+
+        document.addEventListener('keyup', function(event){
+            ctrl_f=0;
+            if(title_h){
+                title_h.setAttribute("onContextmenu", 'return false;'); } // コンテキスト非表示
+            menu.classList.remove('c_active'); });
+
+        document.addEventListener('click', function(event){
+            menu.style.display="none";
+            ctrl_f=0;
+            if(title_h){
+                title_h.setAttribute("onContextmenu", 'return false;'); }}); // コンテキスト非表示
+
+
+        retouch.onclick=function(event){
+            event.preventDefault();
+
+            let article=document.querySelector('.js-entryWrapper');
+            let entry_id=article.getAttribute('data-unique-entry-id');
+            if(entry_id){
+                let path=
+                    'https://blog.ameba.jp/ucs/entry/srventryupdateinput.do?id='+entry_id;
+                if(!event.shiftKey){
+                    window.open(path, "_blank"); }
+                else{
+                    window.location.href=path; }}}
+
+
+        file_list.onclick=function(event){
+            event.preventDefault();
+
+            let article=document.querySelector('.js-entryWrapper');
+            let user=article.getAttribute('data-unique-ameba-id');
+            let entry_id=article.getAttribute('data-unique-entry-id');
+            let date=article.querySelector('.date').textContent;
+            let entry_ym=date.slice(0, 4) + date.slice(5, 7);
+            let path=
+                'https://blog.ameba.jp/ucs/entry/srventrylist.do?pageID='+
+                '1&entry_ym='+entry_ym+'&user='+user+'&entry_id='+entry_id;
+            if(!event.shiftKey){
+                window.open(path, "_blank"); }
+            else{
+                window.location.href=path; }}
+
+    } // blog_page()
+
+
+
+    function blog_archive(){
+        let menu=document.querySelector('#eao_menu');
+        let retouch=document.querySelector('#retouch');
+        let file_list=document.querySelector('#file_list');
+        let view_page=document.querySelector('#view_page');
+        if(view_page){
+            view_page.style.display='inline'; }
+
+        let ctrl_f=0; // Ctrlキー 押下フラグ
+        let ac_list={}; // 記事リスト
+        let skin_type; // 新タイプ 2 旧タイプ 1 その他 0
+        let unfit=0; // ツールの不適合フラグ
+
+        let ac_search=document.querySelector('.skin-borderQuiet');
+        if(ac_search){
+            unfit=1;
+            skin_type=2;
+            ac_list=document.querySelectorAll('.skin-borderQuiet'); } // 新タイプスキン
+        else{
+            ac_search=document.querySelector('.skinBorderList li');
+            if(ac_search){
+                unfit=1;
+                skin_type=1;
+                ac_list=document.querySelectorAll('.skinBorderList li'); } // 旧タイプスキン
+            else{
+                ac_search=document.querySelector('#recent_entries_list');
+                if(ac_search){
+                    skin_type=0;
+                    ac_list=document.querySelectorAll('#recent_entries_list li'); }}} // レトロタイプスキン
+
+        for(let k=0; k<ac_list.length; k++){
+            ac_list[k].setAttribute("onContextmenu", 'return false;'); // コンテキスト非表示
+            ac_list[k].addEventListener('contextmenu', function(e){ // 専用メニュー表示
+                if(unfit==1){
+                    not_fit(); }
+                else{
+                    if(skin_type==0){
+                        menu_disp(e, ac_list[k]); }}}); }
+
+
+        function menu_disp(event, target){
+            if(ctrl_f==0){
+                menu.style.display="block";
+                menu.style.left=event.pageX+"px";
+                menu.style.top=event.pageY+"px"; }
+            retouch_item(target);
+            file_item(target);
+            page_item(target); }
+
+        document.addEventListener('keydown', function(event){
+            if(event.ctrlKey){
+                ctrl_f=1;
+                for(let k=0; k<ac_list.length; k++){
+                    ac_list[k].removeAttribute("onContextmenu", 'return false;'); }} // コンテキスト表示
+            if(event.shiftKey){
+                menu.classList.add('c_active'); }});
+
+        document.addEventListener('keyup', function(event){
+            ctrl_f=0;
+            for(let k=0; k<ac_list.length; k++){
+                ac_list[k].setAttribute("onContextmenu", 'return false;'); } // コンテキスト非表示
+            menu.classList.remove('c_active'); });
+
+        document.addEventListener('click', function(event){
+            menu.style.display="none"; // 専用メニュー非表示
+            ctrl_f=0;
+            for(let k=0; k<ac_list.length; k++){
+                ac_list[k].setAttribute("onContextmenu", 'return false;'); }}); // コンテキスト非表示
+
+
+        function retouch_item(target){
+            retouch.onclick=function(event){
+                event.preventDefault();
+
+                let title_link=target.querySelector('.contentTitle');
+                let entry_id_a=title_link.getAttribute('href').split('entry-');
+                if(entry_id_a[1]){
+                    let entry_id=entry_id_a[1].slice(0, 11);
+                    if(entry_id){
+                        let path=
+                            'https://blog.ameba.jp/ucs/entry/srventryupdateinput.do?id='+entry_id;
+                        if(!event.shiftKey){
+                            window.open(path, "_blank"); }
+                        else{
+                            window.location.href=path; }}}}}
+
+
+        function file_item(target){
+            file_list.onclick=function(event){
+                event.preventDefault();
+
+                let user;
+                let entry_id;
+                let entry_ym;
+
+                let date=target.querySelector('.updatetime').textContent;
+                let title_link=target.querySelector('.contentTitle');
+                let user_a=title_link.getAttribute('href').split('/');
+                user=user_a[1];
+
+                let entry_id_a=title_link.getAttribute('href').split('entry-');
+                if(date && user && entry_id_a[1]){
+                    entry_ym=date.replace(/[^0-9]/g, '').slice(0, 6);
+                    entry_id=entry_id_a[1].slice(0, 11);
+                    let path=
+                        'https://blog.ameba.jp/ucs/entry/srventrylist.do?pageID='+
+                        '1&entry_ym='+entry_ym+'&user='+user+'&entry_id='+entry_id;
+
+                    if(!event.shiftKey){
+                        window.open(path, "_blank"); }
+                    else{
+                        window.location.href=path; }}}}
+
+
+        function page_item(target){
+            view_page.onclick=function(event){
+                event.preventDefault();
+
+                let title_link=target.querySelector('.contentTitle');
+                if(title_link){
+                    let path=title_link.getAttribute('href');
+                    if(!event.shiftKey){
+                        window.open(path, "_blank"); }
+                    else{
+                        window.location.href=path; }}}}
+
+    } // blog_archive()
+
+
+
+    function srventrylist(){
+        let arg=new Object;
+        let pair=location.search.substring(1).split('&');
+        for(let i=0; pair[i]; i++){
+            let key=pair[i].split('=');
+            arg[key[0]]=key[1]; } // key[0]がkey, key[1]がvalue
+
+        let entry_ym=arg.entry_ym;
+        let pageID=parseInt( arg.pageID, 10); // 数値に変換
+        let user=arg.user;
+        let entry_id=arg.entry_id;
+
+        let amebaId=document.querySelector('#gHeaderRight .amebaId').textContent;
+        let entryList_li=document.querySelectorAll('#entryList li');
+
+        if(user!=null){
+            if(amebaId!=user){ // 他ユーザーのブログでリスト表示を押した場合
+                if(history.length>1){
+                    window.history.back(); }
+                else{
+                    window.close(); }}
+            else{
+                let k;
+                for(k=0; k<entryList_li.length; k++){
+                    let entryList_a=entryList_li[k].querySelector('h2 a');
+                    if(entryList_a){
+                        if(entryList_a.getAttribute('href').indexOf(entry_id)!=-1){
+                            entryList_li[k].style.outline='2px solid red';
+                            entryList_li[k].scrollIntoView({block: "center"});
+                            break; }}}
+                if(k==entryList_li.length){
+                    pageID+=1;
+                    let path=
+                        'https://blog.ameba.jp/ucs/entry/srventrylist.do?pageID='+
+                        pageID+'&entry_ym='+entry_ym+'&user='+user+'&entry_id='+entry_id;
+                    window.location.href=path; }}}
+
+    } // srventrylist()
+
+
+
+    function editor(){
+        if(document.querySelector('.l-form form > .error')){ // 他ユーザで再編集を押した場合
+            if(history.length>1){
+                window.history.back(); }
+            else{
+                window.close(); }}
+    } // editor()
+
+
+
+    function not_fit(){
+        let box=
+            '<div id="abox">'+
+            '<p>⛔　「Edit At Once AmR」はレトロタイプスキン専用ツールで</p>'+
+            '<p>　　　このページのスキンには対応ができません。</p>'+
+            '<p>　　　あなたがこのブログの所有者で「Edit At Once」の機能が</p>'+
+            '<p>　　　必要な場合は、「Edit At Once Am」を利用ください。</p>'+
+            '<p>　</p>'+
+            '<p>　　　　　　　　　　<span id="abox_off">❎</span> このパネルを消す</p>'+
+            '<style>#abox { '+
+            'position: fixed; top: 60px; left: calc(50% - 270px); z-index: 10; '+
+            'width: 500px; padding: 20px 20px 15px; border: 1px solid #aaa; '+
+            'font: normal 16px Meiryo; color: #000; background: #fff; '+
+            'box-shadow: 10px 10px 20px rgb(0 0 0 / 15%); } '+
+            '#abox_off { cursor: pointer; }'+
+            '</style></div>';
+        if(!document.querySelector('#abox')){
+            document.body.insertAdjacentHTML('beforeend', box); }
+
+        let abox=document.querySelector('#abox');
+        let abox_off=document.querySelector('#abox_off');
+        abox_off.onclick=function(){
+            abox.style.display='none'; }}
+
+} // main()
